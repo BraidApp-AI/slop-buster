@@ -26,7 +26,7 @@ export function AppHeader({
   subtitle?: string;
 }) {
   return (
-    <header className="rule border-b flex items-stretch">
+    <header className="flex items-stretch border-b-[3px] border-[color:var(--ink)]">
       <div className="flex-1 px-6 py-5 flex items-center gap-4">
         <Logo size={52} />
         <div>
