@@ -1,11 +1,42 @@
 {
   "name": "slop-buster",
   "version": "0.1.0",
-  "private": true,
+  "description": "Find and delete unmaintained Vercel projects before their API keys leak.",
+  "license": "MIT",
+  "bin": {
+    "slop-buster": "./bin/slop-buster.js"
+  },
+  "files": [
+    ".next/standalone",
+    ".next/static",
+    "public",
+    "bin",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 4242",
     "build": "next build",
-    "start": "next start"
+    "start": "next start -p 4242",
+    "cli:dev": "SLOP_BUSTER_DEV=1 tsx bin/slop-buster.ts",
+    "cli": "tsx bin/slop-buster.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "vercel",
+    "cleanup",
+    "security",
+    "api-keys",
+    "devtool"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BraidApp-AI/slop-buster.git"
   },
   "dependencies": {
     "next": "16.2.4",
@@ -17,7 +48,10 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/ui": "^4.1.4",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "tsx": "^4.21.0",
+    "typescript": "^5",
+    "vitest": "^4.1.4"
   }
 }

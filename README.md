@@ -1,36 +1,102 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# slop-buster
 
-## Getting Started
+> Find and delete unmaintained Vercel projects before their API keys leak.
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+┌───────────────────────────────────────────────┐
+│ SLOP-BUSTER · sweep the vercel graveyard     │
+│                                               │
+│  7 SLOP · 2 UNKNOWN · 23 HEALTHY              │
+│                                               │
+│  [SLOP 142d]  [SLOP 89d]   [SLOP 61d]         │
+│  ai-dating-   todo-app-v7  saas-landing       │
+│  coach        [DELETE]     [DELETE]           │
+│  [DELETE]                                     │
+└───────────────────────────────────────────────┘
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Vibe-coding is cheap. Leaving abandoned Next.js demos on Vercel with live
+`OPENAI_API_KEY`, `STRIPE_SECRET_KEY`, `DATABASE_URL` env vars is not. The
+recent Vercel leak news made that concrete. slop-buster is a tiny local app
+that finds those dead projects, shows you a live preview so memory kicks in
+("oh yeah, that one"), then deletes them and hands you a checklist of keys
+to rotate.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Quickstart
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npx slop-buster
+```
 
-## Learn More
+That opens `http://localhost:4242`. Paste a
+[Vercel API token](https://vercel.com/account/tokens?name=slop-buster&scope=full),
+pick an account, and you're in. No signup, no cloud, nothing leaves your
+laptop except requests to `api.vercel.com`.
 
-To learn more about Next.js, take a look at the following resources:
+## What it does
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Scans** every Vercel project on the token's account/team.
+2. **Classifies** each one using two signals:
+   - days since last production deployment (staleness)
+   - monthly visitors — from Vercel Web Analytics if available, otherwise a
+     deployment-activity heuristic (clearly labelled on each card).
+3. **Shows** slop projects as a grid with live iframe previews of the actual
+   deployed site. You see what you're about to delete.
+4. **Deletes** on type-to-confirm. Removes env vars first, then the project.
+5. **Generates** a per-project rotation checklist: OpenAI, Anthropic, Stripe,
+   Supabase, Clerk, Resend, and ~25 others mapped to their rotation URLs.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Default rule
 
-## Deploy on Vercel
+A project is **SLOP** when:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- no commits in **30+ days**, AND
+- **≤ 10 visitors** / 30d
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Both thresholds are user-configurable (top-right `⚙ rules`) and persist to
+`~/.slop-buster/config.json`.
+
+## What it does NOT do
+
+- It will not touch your GitHub repos.
+- It will not rotate your OpenAI/Anthropic/Stripe keys — that still requires
+  logging into each provider.
+- It will not store your Vercel token anywhere but this laptop
+  (`~/.slop-buster/config.json`, mode `0600`).
+- It will not nag you with notifications, cron jobs, or telemetry.
+- It does **not** support Railway, Netlify, or Cloudflare Pages in v1.
+
+## Development
+
+```bash
+pnpm install
+pnpm dev          # next dev on :4242
+pnpm typecheck    # tsc --noEmit
+pnpm test         # vitest
+```
+
+Project layout:
+
+```
+app/                 # Next.js 16 App Router
+  api/
+    vercel/
+      validate      # POST  — exchange token for user/teams
+      projects      # GET   — list + classify
+      projects/[id] # DELETE — destroy project + env vars
+    team            # POST  — pick team scope
+    config          # GET/POST — user thresholds
+components/          # brutalist UI (mono-only typography)
+lib/
+  vercel-client.ts   # REST wrapper
+  classifier.ts      # pure, tested slop/healthy decision
+  scan.ts            # orchestrates list + classify
+  config-store.ts    # ~/.slop-buster/config.json
+  key-rotation-map.json
+bin/
+  slop-buster.ts     # CLI bootstrap — starts Next, opens browser
+```
+
+## License
+
+MIT © BraidApp-AI
