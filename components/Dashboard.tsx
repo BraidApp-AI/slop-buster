@@ -5,7 +5,11 @@ import type { ClassifiedProject, Thresholds } from "@/lib/types";
 import { AppHeader, Stamp } from "./Stamp";
 import { ProjectCard } from "./ProjectCard";
 import { DeleteModal, type DeleteOutcome } from "./DeleteModal";
-import { RotationSidebar, type DeletedLog } from "./RotationSidebar";
+import {
+  RotationBody,
+  RotationTitleBar,
+  type DeletedLog,
+} from "./RotationSidebar";
 import { SettingsDrawer } from "./SettingsDrawer";
 
 type ScanResponse = {
@@ -16,6 +20,8 @@ type ScanResponse = {
 };
 
 type Filter = "slop" | "all" | "healthy" | "unknown";
+
+const SIDEBAR_W = "380px";
 
 export function Dashboard({
   thresholds: initialThresholds,
@@ -111,47 +117,53 @@ export function Dashboard({
     }, 350);
   }
 
-  const header = (
-    <AppHeader
-      subtitle={
-        items === null
-          ? "scanning…"
-          : `${counts.slop} slop · ${counts.unknown} unknown · ${counts.healthy} healthy`
-      }
-      right={
-        <>
-          <button
-            className="ink-btn"
-            onClick={rescan}
-            disabled={scanning}
-            title="re-scan"
-          >
-            {scanning ? "scanning…" : "↻ rescan"}
-          </button>
-          <button className="ink-btn" onClick={() => setSettingsOpen(true)}>
-            ⚙ rules
-          </button>
-          <button className="ink-btn" onClick={logout}>
-            sign out
-          </button>
-        </>
-      }
-    />
-  );
-
   return (
     <main className="min-h-screen flex flex-col">
-      {header}
+      <AppHeader
+        subtitle={
+          items === null
+            ? "scanning…"
+            : `${counts.slop} slop · ${counts.unknown} unknown · ${counts.healthy} healthy`
+        }
+        right={
+          <>
+            <button
+              className="ink-btn"
+              onClick={rescan}
+              disabled={scanning}
+              title="re-scan"
+            >
+              {scanning ? "scanning…" : "↻ rescan"}
+            </button>
+            <button className="ink-btn" onClick={() => setSettingsOpen(true)}>
+              ⚙ rules
+            </button>
+            <button className="ink-btn" onClick={logout}>
+              sign out
+            </button>
+          </>
+        }
+      />
 
+      {/* Sub-header row: forced equal height via flex items-stretch */}
+      <div className="flex items-stretch border-b-[3px] border-[color:var(--ink)]">
+        <FilterBar
+          filter={filter}
+          counts={counts}
+          onChange={setFilter}
+          thresholds={thresholds}
+        />
+        <div
+          className="hidden lg:block shrink-0 border-l-[3px] border-[color:var(--ink)]"
+          style={{ width: SIDEBAR_W }}
+        >
+          <RotationTitleBar />
+        </div>
+      </div>
+
+      {/* Content row */}
       <div className="flex flex-1 flex-col lg:flex-row">
         <section className="flex-1 flex flex-col">
-          <FilterBar
-            filter={filter}
-            counts={counts}
-            onChange={setFilter}
-            thresholds={thresholds}
-          />
-
           {err ? (
             <div className="m-6 border-[3px] border-[color:var(--danger)] bg-[color:var(--danger)] text-white p-4 label">
               {err}
@@ -177,12 +189,19 @@ export function Dashboard({
               ))}
             </div>
           )}
-
-          <FooterStrip counts={counts} />
         </section>
-
-        <RotationSidebar entries={log} />
+        <aside
+          className="shrink-0 border-l-[3px] border-[color:var(--ink)] bg-[color:var(--subtle)] flex flex-col"
+          style={{ width: SIDEBAR_W }}
+        >
+          <div className="lg:hidden">
+            <RotationTitleBar />
+          </div>
+          <RotationBody entries={log} />
+        </aside>
       </div>
+
+      <FooterStrip counts={counts} />
 
       {target ? (
         <DeleteModal
@@ -223,15 +242,13 @@ function FilterBar({
     { key: "all", label: "all", n: counts.all },
   ];
   return (
-    <div className="h-[72px] border-b-[3px] border-[color:var(--ink)] flex items-center gap-1 px-4 flex-wrap overflow-hidden">
+    <div className="flex-1 flex items-center gap-1 px-4 py-3 flex-wrap min-w-0">
       <div className="flex items-center gap-1 mr-3">
         {tabs.map((t) => (
           <button
             key={t.key}
             onClick={() => onChange(t.key)}
-            className={`ink-btn ${
-              filter === t.key ? "" : "opacity-60"
-            }`}
+            className={`ink-btn ${filter === t.key ? "" : "opacity-60"}`}
             style={
               filter === t.key && t.tone === "danger"
                 ? { background: "var(--danger)", color: "white" }
@@ -265,8 +282,8 @@ function FooterStrip({
   counts: { slop: number; healthy: number; unknown: number; all: number };
 }) {
   return (
-    <div className="mt-auto border-t-[3px] border-[color:var(--ink)] bg-[color:var(--ink)] text-[color:var(--paper)] py-2 px-4 flex justify-between items-center text-xs label flex-wrap gap-2">
-      <div>slop-buster · localhost · destructive actions require type-to-confirm</div>
+    <div className="border-t-[3px] border-[color:var(--ink)] bg-[color:var(--ink)] text-[color:var(--paper)] py-2 px-4 flex justify-between items-center text-xs label flex-wrap gap-2">
+      <div>slop-buster · localhost · click delete on a card, confirm, done.</div>
       <div className="flex gap-3">
         <span>SLOP {counts.slop}</span>
         <span>UNKNOWN {counts.unknown}</span>
@@ -299,9 +316,8 @@ function EmptyState({
       <div className="p-10 border-[3px] border-[color:var(--ink)] m-6 bg-[color:var(--subtle)]">
         <div className="display text-3xl font-bold">inbox zero.</div>
         <div className="text-sm mt-2">
-          No slop matches the current rule. Check the{" "}
-          <button className="underline decoration-2">rules</button> or switch
-          to <em>all</em> to browse everything.
+          No slop matches the current rule. Try the <em>all</em> tab to browse
+          everything.
         </div>
       </div>
     );

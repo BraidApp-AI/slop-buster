@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { ClassifiedProject } from "@/lib/types";
 import { Stamp } from "./Stamp";
 
@@ -18,28 +18,17 @@ export function ProjectCard({
   const days = item.daysSinceLastCommit;
   const visitors = item.traffic.visitors;
   const url = item.productionUrl;
-  const [preview, setPreview] = useState<string | null>(null);
   const [previewFailed, setPreviewFailed] = useState(false);
 
   const vercelDashboardUrl = accountSlug
     ? `https://vercel.com/${accountSlug}/${item.project.name}`
     : null;
 
-  useEffect(() => {
-    if (!url) return;
-    let alive = true;
-    fetch(`/api/preview?url=${encodeURIComponent(url)}`)
-      .then((r) => r.json())
-      .then((j) => {
-        if (!alive) return;
-        if (j?.ok && j.imageUrl) setPreview(j.imageUrl);
-        else setPreviewFailed(true);
-      })
-      .catch(() => alive && setPreviewFailed(true));
-    return () => {
-      alive = false;
-    };
-  }, [url]);
+  const previewSrc = item.latestDeploymentId
+    ? `/api/preview?deploymentId=${encodeURIComponent(item.latestDeploymentId)}&w=720`
+    : url
+      ? `/api/preview?url=${encodeURIComponent(url)}`
+      : null;
 
   return (
     <article
@@ -48,13 +37,13 @@ export function ProjectCard({
       }`}
     >
       <div className="relative aspect-[16/10] border-b-[3px] border-[color:var(--ink)] bg-[color:var(--subtle)] overflow-hidden">
-        {preview && !previewFailed ? (
+        {previewSrc && !previewFailed ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={preview}
+            src={previewSrc}
             alt={`preview of ${item.project.name}`}
             className="absolute inset-0 w-full h-full object-cover"
-            referrerPolicy="no-referrer"
+            loading="lazy"
             onError={() => setPreviewFailed(true)}
           />
         ) : (

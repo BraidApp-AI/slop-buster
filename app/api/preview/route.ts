@@ -1,44 +1,55 @@
 import { NextRequest } from "next/server";
+import { readConfig } from "@/lib/config-store";
 
 export const dynamic = "force-dynamic";
 
-const cache = new Map<string, { at: number; imageUrl: string | null }>();
-const TTL = 1000 * 60 * 30;
-
 export async function GET(req: NextRequest) {
+  const deploymentId = req.nextUrl.searchParams.get("deploymentId");
   const target = req.nextUrl.searchParams.get("url");
-  if (!target) {
-    return Response.json({ ok: false, error: "missing url" }, { status: 400 });
-  }
-  let parsed: URL;
-  try {
-    parsed = new URL(target);
-  } catch {
-    return Response.json({ ok: false, error: "bad url" }, { status: 400 });
-  }
-  if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
-    return Response.json({ ok: false, error: "bad protocol" }, { status: 400 });
+  const width = req.nextUrl.searchParams.get("w") ?? "720";
+
+  if (deploymentId) {
+    const cfg = await readConfig();
+    if (cfg.token) {
+      const res = await fetch(
+        `https://vercel.com/api/screenshot?deploymentId=${encodeURIComponent(deploymentId)}&width=${encodeURIComponent(width)}`,
+        {
+          headers: { Authorization: `Bearer ${cfg.token}` },
+          cache: "no-store",
+        },
+      ).catch(() => null);
+      if (res && res.ok && res.body) {
+        return new Response(res.body, {
+          status: 200,
+          headers: {
+            "content-type": res.headers.get("content-type") ?? "image/jpeg",
+            "cache-control": "public, max-age=3600",
+          },
+        });
+      }
+    }
   }
 
-  const cached = cache.get(target);
-  if (cached && Date.now() - cached.at < TTL) {
-    return Response.json({ ok: true, imageUrl: cached.imageUrl, source: "cache" });
+  if (target) {
+    try {
+      const parsed = new URL(target);
+      if (parsed.protocol === "https:" || parsed.protocol === "http:") {
+        const og = await scrapeOg(target).catch(() => null);
+        if (og) return Response.redirect(og, 302);
+        return Response.redirect(
+          `https://s.wordpress.com/mshots/v1/${encodeURIComponent(target)}?w=900&h=600`,
+          302,
+        );
+      }
+    } catch {}
   }
 
-  const og = await scrapeOg(target).catch(() => null);
-  if (og) {
-    cache.set(target, { at: Date.now(), imageUrl: og });
-    return Response.json({ ok: true, imageUrl: og, source: "og" });
-  }
-
-  const shot = `https://s.wordpress.com/mshots/v1/${encodeURIComponent(target)}?w=900&h=600`;
-  cache.set(target, { at: Date.now(), imageUrl: shot });
-  return Response.json({ ok: true, imageUrl: shot, source: "mshots" });
+  return Response.json({ ok: false, error: "no preview" }, { status: 404 });
 }
 
 async function scrapeOg(url: string): Promise<string | null> {
   const ac = new AbortController();
-  const t = setTimeout(() => ac.abort(), 6000);
+  const t = setTimeout(() => ac.abort(), 5000);
   try {
     const res = await fetch(url, {
       redirect: "follow",
@@ -54,9 +65,7 @@ async function scrapeOg(url: string): Promise<string | null> {
     const head = html.slice(0, 32_000);
     const m =
       head.match(/<meta[^>]+property=["']og:image(?::url)?["'][^>]+content=["']([^"']+)["']/i) ||
-      head.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image(?::url)?["']/i) ||
-      head.match(/<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i) ||
-      head.match(/<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image["']/i);
+      head.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image(?::url)?["']/i);
     if (!m) return null;
     return new URL(m[1], url).toString();
   } finally {

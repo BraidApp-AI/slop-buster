@@ -44,6 +44,7 @@ export type TrafficSignal =
 export type ClassifiedProject = {
   project: VercelProject;
   productionUrl: string | null;
+  latestDeploymentId: string | null;
   lastCommitAt: number | null;
   daysSinceLastCommit: number | null;
   traffic: TrafficSignal;

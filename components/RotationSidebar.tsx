@@ -13,7 +13,18 @@ export type DeletedLog = {
   }[];
 };
 
-export function RotationSidebar({ entries }: { entries: DeletedLog[] }) {
+export function RotationTitleBar() {
+  return (
+    <div className="h-full min-h-[72px] px-5 py-3 flex flex-col justify-center bg-[color:var(--ink)] text-[color:var(--paper)]">
+      <div className="display text-lg leading-none font-bold">ROTATE NOW</div>
+      <div className="label text-[color:var(--chrome)] mt-1 leading-none">
+        keys from deleted projects
+      </div>
+    </div>
+  );
+}
+
+export function RotationBody({ entries }: { entries: DeletedLog[] }) {
   const [checked, setChecked] = useState<Set<string>>(new Set());
 
   const allKeys = useMemo(() => {
@@ -60,15 +71,7 @@ export function RotationSidebar({ entries }: { entries: DeletedLog[] }) {
   }
 
   return (
-    <aside className="w-full lg:w-[380px] shrink-0 border-l-[3px] border-[color:var(--ink)] bg-[color:var(--subtle)] flex flex-col">
-      <div className="px-5 h-[72px] flex items-center border-b-[3px] border-[color:var(--ink)] bg-[color:var(--ink)] text-[color:var(--paper)]">
-        <div>
-          <div className="display text-lg leading-none font-bold">ROTATE NOW</div>
-          <div className="label text-[color:var(--chrome)] mt-1 leading-none">
-            keys from deleted projects
-          </div>
-        </div>
-      </div>
+    <>
       <div className="flex-1 overflow-y-auto scroll-mask">
         {entries.length === 0 ? (
           <div className="p-5 text-sm text-[color:var(--muted)]">
@@ -152,6 +155,6 @@ export function RotationSidebar({ entries }: { entries: DeletedLog[] }) {
           </button>
         </div>
       ) : null}
-    </aside>
+    </>
   );
 }
