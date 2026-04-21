@@ -145,18 +145,18 @@ export function Dashboard({
         }
       />
 
-      {/* Sub-header row: forced equal height via flex items-stretch */}
-      <div className="flex items-stretch border-b-[3px] border-[color:var(--ink)]">
+      {/* Sub-header row: CSS grid forces both cells to the row's tallest height */}
+      <div
+        className="border-b-[3px] border-[color:var(--ink)] lg:grid"
+        style={{ gridTemplateColumns: `1fr ${SIDEBAR_W}` }}
+      >
         <FilterBar
           filter={filter}
           counts={counts}
           onChange={setFilter}
           thresholds={thresholds}
         />
-        <div
-          className="hidden lg:block shrink-0 border-l-[3px] border-[color:var(--ink)]"
-          style={{ width: SIDEBAR_W }}
-        >
+        <div className="hidden lg:flex flex-col border-l-[3px] border-[color:var(--ink)]">
           <RotationTitleBar />
         </div>
       </div>
@@ -242,8 +242,8 @@ function FilterBar({
     { key: "all", label: "all", n: counts.all },
   ];
   return (
-    <div className="flex-1 flex items-center gap-1 px-4 py-3 flex-wrap min-w-0">
-      <div className="flex items-center gap-1 mr-3">
+    <div className="min-h-[72px] flex items-center gap-3 px-4 py-3 flex-wrap min-w-0">
+      <div className="flex items-center gap-1">
         {tabs.map((t) => (
           <button
             key={t.key}

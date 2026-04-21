@@ -70,7 +70,7 @@ export function classify(input: ClassifierInput): ClassifiedProject {
   return {
     project: input.project,
     productionUrl,
-    latestDeploymentId: dep?.id ?? null,
+    latestDeploymentId: dep?.uid ?? dep?.id ?? null,
     lastCommitAt,
     daysSinceLastCommit,
     traffic,

@@ -15,7 +15,7 @@ export type DeletedLog = {
 
 export function RotationTitleBar() {
   return (
-    <div className="h-full min-h-[72px] px-5 py-3 flex flex-col justify-center bg-[color:var(--ink)] text-[color:var(--paper)]">
+    <div className="flex-1 min-h-[72px] px-5 py-3 flex flex-col justify-center bg-[color:var(--ink)] text-[color:var(--paper)]">
       <div className="display text-lg leading-none font-bold">ROTATE NOW</div>
       <div className="label text-[color:var(--chrome)] mt-1 leading-none">
         keys from deleted projects

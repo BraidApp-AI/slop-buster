@@ -19,7 +19,7 @@ function proj(overrides: Partial<VercelProject> = {}): VercelProject {
 
 function deploy(daysAgo: number): VercelDeployment {
   return {
-    id: `dpl_${daysAgo}`,
+    uid: `dpl_${daysAgo}`,
     url: "example-xyz.vercel.app",
     name: "example",
     createdAt: NOW - daysAgo * DAY_MS,

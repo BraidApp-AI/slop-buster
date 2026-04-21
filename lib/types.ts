@@ -16,7 +16,9 @@ export type VercelProject = {
 };
 
 export type VercelDeployment = {
-  id: string;
+  // v6/deployments returns `uid`; v13/deployments/{id} returns `id`. Both hold.
+  uid?: string;
+  id?: string;
   url: string;
   name: string;
   createdAt: number;
