@@ -1,3 +1,5 @@
+import { Logo } from "./Logo";
+
 export function Stamp({
   status,
   children,
@@ -25,7 +27,8 @@ export function AppHeader({
 }) {
   return (
     <header className="rule border-b flex items-stretch">
-      <div className="flex-1 px-6 py-5 flex items-center gap-6">
+      <div className="flex-1 px-6 py-5 flex items-center gap-4">
+        <Logo size={52} />
         <div>
           <div className="display text-3xl sm:text-4xl font-bold tracking-tight leading-none">
             SLOP-BUSTER
