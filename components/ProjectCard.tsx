@@ -1,22 +1,45 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ClassifiedProject } from "@/lib/types";
 import { Stamp } from "./Stamp";
 
 export function ProjectCard({
   item,
+  accountSlug,
   onRequestDelete,
   deleting,
 }: {
   item: ClassifiedProject;
+  accountSlug: string | null;
   onRequestDelete: () => void;
   deleting: boolean;
 }) {
-  const [iframeFailed, setIframeFailed] = useState(false);
   const days = item.daysSinceLastCommit;
   const visitors = item.traffic.visitors;
   const url = item.productionUrl;
+  const [preview, setPreview] = useState<string | null>(null);
+  const [previewFailed, setPreviewFailed] = useState(false);
+
+  const vercelDashboardUrl = accountSlug
+    ? `https://vercel.com/${accountSlug}/${item.project.name}`
+    : null;
+
+  useEffect(() => {
+    if (!url) return;
+    let alive = true;
+    fetch(`/api/preview?url=${encodeURIComponent(url)}`)
+      .then((r) => r.json())
+      .then((j) => {
+        if (!alive) return;
+        if (j?.ok && j.imageUrl) setPreview(j.imageUrl);
+        else setPreviewFailed(true);
+      })
+      .catch(() => alive && setPreviewFailed(true));
+    return () => {
+      alive = false;
+    };
+  }, [url]);
 
   return (
     <article
@@ -25,20 +48,18 @@ export function ProjectCard({
       }`}
     >
       <div className="relative aspect-[16/10] border-b-[3px] border-[color:var(--ink)] bg-[color:var(--subtle)] overflow-hidden">
-        {url && !iframeFailed ? (
-          <iframe
-            src={url}
-            title={item.project.name}
-            sandbox=""
-            loading="lazy"
+        {preview && !previewFailed ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={preview}
+            alt={`preview of ${item.project.name}`}
+            className="absolute inset-0 w-full h-full object-cover"
             referrerPolicy="no-referrer"
-            className="absolute inset-0 w-full h-full pointer-events-none"
-            onError={() => setIframeFailed(true)}
+            onError={() => setPreviewFailed(true)}
           />
         ) : (
-          <div className="absolute inset-0 checker opacity-40" />
+          <div className="absolute inset-0 checker opacity-30" />
         )}
-        <div className="absolute inset-0 bg-transparent pointer-events-none" />
         <div className="absolute top-2 left-2 flex flex-wrap gap-1.5 max-w-full">
           {item.verdict === "slop" ? (
             <Stamp status="danger">SLOP</Stamp>
@@ -114,8 +135,20 @@ export function ProjectCard({
               href={url}
               target="_blank"
               rel="noreferrer"
+              title="open the live url"
             >
-              ↗ open
+              ↗ live
+            </a>
+          ) : null}
+          {vercelDashboardUrl ? (
+            <a
+              className="ink-btn flex-1"
+              href={vercelDashboardUrl}
+              target="_blank"
+              rel="noreferrer"
+              title="inspect on vercel.com"
+            >
+              ▲ vercel
             </a>
           ) : null}
           <button

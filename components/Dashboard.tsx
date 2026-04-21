@@ -19,9 +19,11 @@ type Filter = "slop" | "all" | "healthy" | "unknown";
 
 export function Dashboard({
   thresholds: initialThresholds,
+  accountSlug,
   onLogout,
 }: {
   thresholds: Thresholds;
+  accountSlug: string | null;
   onLogout: () => void;
 }) {
   const [items, setItems] = useState<ClassifiedProject[] | null>(null);
@@ -168,6 +170,7 @@ export function Dashboard({
                 <ProjectCard
                   key={item.project.id}
                   item={item}
+                  accountSlug={accountSlug}
                   onRequestDelete={() => confirmDelete(item)}
                   deleting={deletingIds.has(item.project.id)}
                 />
@@ -220,8 +223,8 @@ function FilterBar({
     { key: "all", label: "all", n: counts.all },
   ];
   return (
-    <div className="border-b-[3px] border-[color:var(--ink)] flex items-center gap-1 px-4 py-3 flex-wrap">
-      <div className="flex items-center gap-1 mr-3">
+    <div className="border-b-[3px] border-[color:var(--ink)] flex items-center gap-1 px-4 min-h-16 flex-wrap">
+      <div className="flex items-center gap-1 mr-3 py-2">
         {tabs.map((t) => (
           <button
             key={t.key}

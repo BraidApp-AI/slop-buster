@@ -1,11 +1,29 @@
 import { readConfig, writeConfig } from "@/lib/config-store";
 import { DEFAULT_THRESHOLDS, type Thresholds } from "@/lib/types";
+import { getUser, listTeams } from "@/lib/vercel-client";
 
 export async function GET() {
-  const cfg = await readConfig();
+  let cfg = await readConfig();
+  if (cfg.token && !cfg.accountSlug) {
+    try {
+      let accountSlug: string | null = null;
+      if (cfg.teamId) {
+        const teams = await listTeams({ token: cfg.token });
+        accountSlug = teams.teams.find((t) => t.id === cfg.teamId)?.slug ?? null;
+      } else {
+        const user = await getUser({ token: cfg.token });
+        accountSlug = user.user.username;
+      }
+      if (accountSlug) {
+        cfg = { ...cfg, accountSlug };
+        await writeConfig(cfg);
+      }
+    } catch {}
+  }
   return Response.json({
     hasToken: !!cfg.token,
     teamId: cfg.teamId,
+    accountSlug: cfg.accountSlug,
     thresholds: cfg.thresholds,
   });
 }
@@ -38,6 +56,7 @@ export async function POST(req: Request) {
   return Response.json({ ok: true, config: {
     hasToken: !!next.token,
     teamId: next.teamId,
+    accountSlug: next.accountSlug,
     thresholds: next.thresholds,
   }});
 }

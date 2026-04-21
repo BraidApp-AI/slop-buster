@@ -61,10 +61,12 @@ export function RotationSidebar({ entries }: { entries: DeletedLog[] }) {
 
   return (
     <aside className="w-full lg:w-[380px] shrink-0 border-l-[3px] border-[color:var(--ink)] bg-[color:var(--subtle)] flex flex-col">
-      <div className="px-5 py-4 border-b-[3px] border-[color:var(--ink)] bg-[color:var(--ink)] text-[color:var(--paper)]">
-        <div className="display text-xl font-bold">ROTATE NOW</div>
-        <div className="label text-[color:var(--chrome)] mt-0.5">
-          keys from deleted projects · check when rotated
+      <div className="px-5 min-h-16 flex items-center border-b-[3px] border-[color:var(--ink)] bg-[color:var(--ink)] text-[color:var(--paper)]">
+        <div>
+          <div className="display text-lg leading-none font-bold">ROTATE NOW</div>
+          <div className="label text-[color:var(--chrome)] mt-1 leading-none">
+            keys from deleted projects
+          </div>
         </div>
       </div>
       <div className="flex-1 overflow-y-auto scroll-mask">

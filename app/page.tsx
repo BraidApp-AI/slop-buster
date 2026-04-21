@@ -8,6 +8,7 @@ import { Dashboard } from "@/components/Dashboard";
 type ConfigState = {
   hasToken: boolean;
   teamId: string | null;
+  accountSlug: string | null;
   thresholds: Thresholds;
 };
 
@@ -46,5 +47,11 @@ export default function Home() {
   if (!cfg.hasToken) {
     return <TokenEntry onAuthenticated={refresh} />;
   }
-  return <Dashboard thresholds={cfg.thresholds} onLogout={refresh} />;
+  return (
+    <Dashboard
+      thresholds={cfg.thresholds}
+      accountSlug={cfg.accountSlug}
+      onLogout={refresh}
+    />
+  );
 }

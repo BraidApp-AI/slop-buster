@@ -9,6 +9,7 @@ const CONFIG_FILE = path.join(CONFIG_DIR, "config.json");
 const EMPTY: AppConfig = {
   token: null,
   teamId: null,
+  accountSlug: null,
   thresholds: DEFAULT_THRESHOLDS,
 };
 
@@ -19,6 +20,7 @@ export async function readConfig(): Promise<AppConfig> {
     return {
       token: parsed.token ?? null,
       teamId: parsed.teamId ?? null,
+      accountSlug: parsed.accountSlug ?? null,
       thresholds: { ...DEFAULT_THRESHOLDS, ...(parsed.thresholds ?? {}) },
     };
   } catch {

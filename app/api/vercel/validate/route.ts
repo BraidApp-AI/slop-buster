@@ -12,7 +12,13 @@ export async function POST(req: Request) {
       listTeams({ token }).catch(() => ({ teams: [] })),
     ]);
     const cfg = await readConfig();
-    await writeConfig({ ...cfg, token });
+    await writeConfig({
+      ...cfg,
+      token,
+      accountSlug: cfg.teamId
+        ? teamsRes.teams.find((t) => t.id === cfg.teamId)?.slug ?? null
+        : user.user.username,
+    });
     return Response.json({
       ok: true,
       user: user.user,

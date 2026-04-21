@@ -61,6 +61,7 @@ export type Thresholds = {
 export type AppConfig = {
   token: string | null;
   teamId: string | null;
+  accountSlug: string | null;
   thresholds: Thresholds;
 };
 

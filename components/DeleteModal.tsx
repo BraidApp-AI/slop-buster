@@ -23,24 +23,26 @@ export function DeleteModal({
   onDone: (result: DeleteOutcome) => void;
   onCancel: () => void;
 }) {
-  const [typed, setTyped] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  const ref = useRef<HTMLInputElement>(null);
+  const ref = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     ref.current?.focus();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape" && !busy) onCancel();
+      if ((e.key === "Enter" || e.key === " ") && !busy) {
+        e.preventDefault();
+        doDelete();
+      }
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [busy, onCancel]);
 
-  const allowed = typed.trim() === item.project.name && !busy;
-
   async function doDelete() {
-    if (!allowed) return;
+    if (busy) return;
     setBusy(true);
     setErr(null);
     try {
@@ -102,25 +104,8 @@ export function DeleteModal({
             </ul>
           </div>
 
-          <div className="mt-5">
-            <label className="label block mb-2">
-              type <code>{item.project.name}</code> to confirm
-            </label>
-            <input
-              ref={ref}
-              type="text"
-              spellCheck={false}
-              autoCapitalize="off"
-              autoCorrect="off"
-              value={typed}
-              onChange={(e) => setTyped(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && allowed) doDelete();
-              }}
-              className="w-full"
-              placeholder={item.project.name}
-              disabled={busy}
-            />
+          <div className="mt-5 label text-[color:var(--muted)]">
+            ↵ enter to confirm · esc to cancel
           </div>
 
           {err ? (
@@ -134,9 +119,10 @@ export function DeleteModal({
               cancel
             </button>
             <button
+              ref={ref}
               onClick={doDelete}
               className="ink-btn danger-btn"
-              disabled={!allowed}
+              disabled={busy}
             >
               {busy ? "deleting…" : "delete forever"}
             </button>
