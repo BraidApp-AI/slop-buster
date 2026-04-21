@@ -61,7 +61,7 @@ export function RotationSidebar({ entries }: { entries: DeletedLog[] }) {
 
   return (
     <aside className="w-full lg:w-[380px] shrink-0 border-l-[3px] border-[color:var(--ink)] bg-[color:var(--subtle)] flex flex-col">
-      <div className="px-5 min-h-16 flex items-center border-b-[3px] border-[color:var(--ink)] bg-[color:var(--ink)] text-[color:var(--paper)]">
+      <div className="px-5 h-[72px] flex items-center border-b-[3px] border-[color:var(--ink)] bg-[color:var(--ink)] text-[color:var(--paper)]">
         <div>
           <div className="display text-lg leading-none font-bold">ROTATE NOW</div>
           <div className="label text-[color:var(--chrome)] mt-1 leading-none">

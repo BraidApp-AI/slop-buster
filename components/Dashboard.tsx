@@ -223,8 +223,8 @@ function FilterBar({
     { key: "all", label: "all", n: counts.all },
   ];
   return (
-    <div className="border-b-[3px] border-[color:var(--ink)] flex items-center gap-1 px-4 min-h-16 flex-wrap">
-      <div className="flex items-center gap-1 mr-3 py-2">
+    <div className="h-[72px] border-b-[3px] border-[color:var(--ink)] flex items-center gap-1 px-4 flex-wrap overflow-hidden">
+      <div className="flex items-center gap-1 mr-3">
         {tabs.map((t) => (
           <button
             key={t.key}
