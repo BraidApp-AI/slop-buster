@@ -44,7 +44,7 @@ export function AppHeader({
         </div>
       </div>
       {right ? (
-        <div className="flex items-center gap-2 px-4 border-l-[3px] border-[color:var(--ink)]">
+        <div className="flex items-center justify-end gap-2 shrink-0 px-4 border-l-[3px] border-[color:var(--ink)] w-auto lg:w-[380px]">
           {right}
         </div>
       ) : null}
