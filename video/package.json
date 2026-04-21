@@ -1,0 +1,27 @@
+{
+  "name": "slop-buster-video",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Remotion promo for slop-buster",
+  "scripts": {
+    "dev": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts Promo out/slop-buster-promo.mp4",
+    "render:vertical": "remotion render src/index.ts PromoVertical out/slop-buster-promo-vertical.mp4",
+    "typecheck": "tsc --noEmit"
+  },
+  "packageManager": "pnpm@10.10.0",
+  "dependencies": {
+    "@remotion/bundler": "^4.0.450",
+    "@remotion/cli": "^4.0.450",
+    "@remotion/renderer": "^4.0.450",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "remotion": "^4.0.450"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.39",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^5.9.3"
+  }
+}
