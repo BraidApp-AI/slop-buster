@@ -145,10 +145,10 @@ export function Dashboard({
         }
       />
 
-      {/* Sub-header row: CSS grid forces both cells to the row's tallest height */}
+      {/* Sub-header: ONE row at a fixed height so both cells share a bottom */}
       <div
-        className="border-b-[3px] border-[color:var(--ink)] lg:grid"
-        style={{ gridTemplateColumns: `1fr ${SIDEBAR_W}` }}
+        className="flex border-b-[3px] border-[color:var(--ink)]"
+        style={{ height: "72px" }}
       >
         <FilterBar
           filter={filter}
@@ -156,8 +156,16 @@ export function Dashboard({
           onChange={setFilter}
           thresholds={thresholds}
         />
-        <div className="hidden lg:flex flex-col border-l-[3px] border-[color:var(--ink)]">
-          <RotationTitleBar />
+        <div
+          className="hidden lg:flex items-center shrink-0 border-l-[3px] border-[color:var(--ink)] bg-[color:var(--ink)] text-[color:var(--paper)] px-5"
+          style={{ width: SIDEBAR_W }}
+        >
+          <div>
+            <div className="display text-lg leading-none font-bold">ROTATE NOW</div>
+            <div className="label text-[color:var(--chrome)] mt-1 leading-none">
+              keys from deleted projects
+            </div>
+          </div>
         </div>
       </div>
 
@@ -242,8 +250,8 @@ function FilterBar({
     { key: "all", label: "all", n: counts.all },
   ];
   return (
-    <div className="min-h-[72px] flex items-center gap-3 px-4 py-3 flex-wrap min-w-0">
-      <div className="flex items-center gap-1">
+    <div className="flex-1 h-full flex items-center gap-3 px-4 min-w-0 overflow-x-auto">
+      <div className="flex items-center gap-1 shrink-0">
         {tabs.map((t) => (
           <button
             key={t.key}
